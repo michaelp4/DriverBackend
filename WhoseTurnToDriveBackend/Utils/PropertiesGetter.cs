@@ -52,13 +52,24 @@ namespace WhoseTurnToDriveBackend.Utils
             {
                 foreach (var property in props)
                 {
-                    var propertyToSet = property.DefaultValue ??
-                                           GetValueFromJObjectValue(((JValue)jObject[property.Name]).Value);
+                    var propertyToSet = GetPropertyValue(property, jObject);
                     paramsCollection.AddWithValue(string.Format("@{0}", property.Name), propertyToSet);
                 }
 
             }
             return string.Join(",", props.Select(x => x.Name).Select(propStringFormat));
+        }
+
+        private static object GetPropertyValue(ReflectionPropertyInfo property, JObject jObject)
+        {
+            try
+            {
+                return GetValueFromJObjectValue(((JValue) jObject[property.Name]).Value);
+            }
+            catch (Exception)
+            {
+                return property.DefaultValue;
+            }
         }
 
         private static object GetValueFromJObjectValue(object jObjectValue)
